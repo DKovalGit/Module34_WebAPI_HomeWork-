@@ -63,7 +63,7 @@ namespace HomeApi.Controllers
                 new UpdateRoomQuery(request.NewName, request.NewArea, request.NewGasConnected, request.NewVoltage)
                 );
 
-            return StatusCode(200, $"Устройство обновлено! Имя - {id}, Комната - {request.NewName}");
+            return StatusCode(200, $"Комната обновлена! ID - {id}, Имя - {request.NewName}");
         }
 
     }
