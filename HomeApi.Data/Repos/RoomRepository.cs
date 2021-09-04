@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using HomeApi.Data.Models;
 using Microsoft.EntityFrameworkCore;
@@ -35,6 +36,14 @@ namespace HomeApi.Data.Repos
                 await _context.Rooms.AddAsync(room);
             
             await _context.SaveChangesAsync();
+        }
+        /// <summary>
+        /// Найти комнату по идентификатору
+        /// </summary>
+        public async Task<Room> GetRoomById(Guid id)
+        {
+            return await _context.Rooms
+                .Where(r => r.Id == id).FirstOrDefaultAsync();
         }
     }
 }
