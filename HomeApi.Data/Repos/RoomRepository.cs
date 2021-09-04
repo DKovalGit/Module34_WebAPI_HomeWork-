@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using HomeApi.Data.Models;
+using HomeApi.Data.Queries;
 using Microsoft.EntityFrameworkCore;
 
 namespace HomeApi.Data.Repos
@@ -12,12 +13,12 @@ namespace HomeApi.Data.Repos
     public class RoomRepository : IRoomRepository
     {
         private readonly HomeApiContext _context;
-        
-        public RoomRepository (HomeApiContext context)
+
+        public RoomRepository(HomeApiContext context)
         {
             _context = context;
         }
-        
+
         /// <summary>
         ///  Найти комнату по имени
         /// </summary>
@@ -25,7 +26,7 @@ namespace HomeApi.Data.Repos
         {
             return await _context.Rooms.Where(r => r.Name == name).FirstOrDefaultAsync();
         }
-        
+
         /// <summary>
         ///  Добавить новую комнату
         /// </summary>
@@ -34,7 +35,7 @@ namespace HomeApi.Data.Repos
             var entry = _context.Entry(room);
             if (entry.State == EntityState.Detached)
                 await _context.Rooms.AddAsync(room);
-            
+
             await _context.SaveChangesAsync();
         }
         /// <summary>
@@ -44,6 +45,31 @@ namespace HomeApi.Data.Repos
         {
             return await _context.Rooms
                 .Where(r => r.Id == id).FirstOrDefaultAsync();
+        }
+
+        /// <summary>
+        /// Обновить комнату
+        /// </summary>
+        public async Task UpdateRoom(Room room, UpdateRoomQuery query)
+        {
+            // Если в запрос переданы параметры для обновления - проверяем их на null
+            // И если нужно - обновляем комнату
+            if (!string.IsNullOrEmpty(query.NewName))
+                room.Name = query.NewName;
+            if (!(query.NewArea == 0))
+                room.Area = query.NewArea;
+            if (!(query.NewVoltage == 0))
+                room.Voltage = query.NewVoltage;
+
+            room.GasConnected = query.NewGasConnected;
+
+            // Добавляем в базу 
+            var entry = _context.Entry(room);
+            if (entry.State == EntityState.Detached)
+                _context.Rooms.Update(room);
+
+            // Сохраняем изменения в базе 
+            await _context.SaveChangesAsync();
         }
     }
 }

@@ -16,9 +16,17 @@ namespace HomeApi.Contracts.Validation
         public EditRoomRequestValidator()
         {
             RuleFor(x => x.NewArea).NotEmpty();
-            RuleFor(x => x.NewName).NotEmpty();
+            RuleFor(x => x.NewName).NotEmpty().Must(BeSupported).WithMessage($"Please choose one of the following locations: {string.Join(", ", Values.ValidRooms)}"); ;
             RuleFor(x => x.NewVoltage).NotEmpty();
-            RuleFor(x => x.NewGasConnected).NotEmpty();
+        }
+
+        /// <summary>
+        ///  Метод кастомной валидации для свойства NewName
+        /// </summary>
+        private bool BeSupported(string location)
+        {
+            // Проверим, содержится ли значение в списке допустимых
+            return Values.ValidRooms.Any(e => e == location);
         }
     }
 }

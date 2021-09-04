@@ -4,6 +4,7 @@ using AutoMapper;
 using HomeApi.Contracts.Models.Devices;
 using HomeApi.Contracts.Models.Rooms;
 using HomeApi.Data.Models;
+using HomeApi.Data.Queries;
 using HomeApi.Data.Repos;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,20 +19,20 @@ namespace HomeApi.Controllers
     {
         private IRoomRepository _rooms;
         private IMapper _mapper;
-        
+
         public RoomsController(IRoomRepository repository, IMapper mapper)
         {
             _rooms = repository;
             _mapper = mapper;
         }
-        
+
         //TODO: Задание - добавить метод на получение всех существующих комнат
-        
+
         /// <summary>
         /// Добавление комнаты
         /// </summary>
-        [HttpPost] 
-        [Route("")] 
+        [HttpPost]
+        [Route("")]
         public async Task<IActionResult> Add([FromBody] AddRoomRequest request)
         {
             var existingRoom = await _rooms.GetRoomByName(request.Name);
@@ -41,7 +42,7 @@ namespace HomeApi.Controllers
                 await _rooms.AddRoom(newRoom);
                 return StatusCode(201, $"Комната {request.Name} добавлена!");
             }
-            
+
             return StatusCode(409, $"Ошибка: Комната {request.Name} уже существует.");
         }
         /// <summary>
@@ -57,15 +58,22 @@ namespace HomeApi.Controllers
             if (room == null)
                 return StatusCode(400, $"Ошибка: Комната {id} не подключена. Сначала подключите комнату!");
 
-
-            //await _devices.UpdateDevice(
-            //    device,
-            //    room,
-            //    new UpdateDeviceQuery(request.NewName, request.NewSerial)
-            //);
+            await _rooms.UpdateRoom(
+                room,
+                new UpdateRoomQuery(request.NewName, request.NewArea, request.NewGasConnected, request.NewVoltage)
+                );
 
             return StatusCode(200, $"Устройство обновлено! Имя - {id}, Комната - {request.NewName}");
         }
 
     }
 }
+
+/*
+  {
+  "newName": "Туалет",
+  "newArea": 20,
+  "newGasConnected": false,
+  "newVoltage": 220
+  }
+ */
